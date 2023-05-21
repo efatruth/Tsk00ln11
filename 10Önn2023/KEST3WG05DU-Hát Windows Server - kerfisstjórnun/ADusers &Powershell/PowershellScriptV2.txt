@@ -1,0 +1,41 @@
+
+#Import required modules
+Import-Module ActiveDirectory
+
+#create a new password
+$securePassword = ConvertTo-SecureString "2015P@ssword" -AsPlainText -Force
+
+#Prompt user for CSV file path
+$filepath = Read-Host -Prompt "Please enter the path to your CSV file"
+
+#Import the file into a variable - i use this path C:\usersV2.csv since i put it in the C:\ drive and change the variable to $users not $Users or vise versa first letter of the csv file name  
+$users = Import-Csv $filepath
+
+
+#Loop through each row and gather information
+
+ForEach ($user in $users){
+ #gather the users info
+ $fname = $user.Nafn
+ $mname  = $user.Fornafn  
+ $lname  = $user.Eftirnafn
+ $uname = $user.Notendanafn
+ $department = $user.Deild
+ $jTitle = $user.Stada
+
+ $ou = $("ou=" + $department + ",dc=livinus,dc=local")
+ 
+ $dnsroot = '@'+(Get-ADDomain).dnsroot
+ $upn = $fname.substring(0,2) + $lname.substring(0,1) + $dnsroot
+
+ if(-not(Get-ADOrganizationalUnit -Filter {name -like $department})){
+ New-ADOrganizationalUnit -name $department -Path "dc=livinus,dc=local"
+ New-adgroup -name $department -path $("ou=" + $department + " ,dc=livinus,dc=local") -GroupScope Global
+
+ }
+
+ #Create new AD user for each user in CSV file
+ New-ADUser -Name "$fname" -GivenName $mname -Surname $lname -UserPrincipalName $upn -Path $ou -SamAccountName $uname -AccountPassword $securePassword -ChangePasswordAtLogon $true -OfficePhone $ophone -Description $desc -Enabled $true
+ echo "Account Created for" $fname $lname in $ou
+ Add-ADGroupMember -Identity $department -Members $user.Notendanafn
+ }

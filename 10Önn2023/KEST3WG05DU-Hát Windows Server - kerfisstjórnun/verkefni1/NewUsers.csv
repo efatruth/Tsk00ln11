@@ -1,0 +1,3 @@
+FirstName,LastName,Job Title,Office Phone,Email Address,Description,Organizational Unit
+Mike,Terry,Office Manager,7718743,mike.terry@itnetspace.net,Ensures excellent physical condition of office,"OU=Engineering,OU=Reykjavik,DC=itnetspace,DC=net"
+Ridley,Quin,Software Engineer,7892901,ridley.quin@itnetspace.net,Develops software for itnetspace.net,OU=IT,"OU=Reykjavik,DC=itnetspace,DC=net"

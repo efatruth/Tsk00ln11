@@ -1,0 +1,16 @@
+
+
+To set up the Server manager when you want to start setting up the Server 
+or after doing reverting with the snapchat(Please always remeber to snapchat when you want to prepare the Server) 
+
+1. Configure the Static Ipv4 Address (Host IP Address) on the private interface
+
+2. Rename the Server
+
+3. Install ADDS(Active Directory Domain Services) Role
+
+4. Promote the Server to a domain
+
+5. Install and configure DHCP
+
+6. Join client to the domain

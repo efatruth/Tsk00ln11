@@ -1,0 +1,99 @@
+
+Subnet mask	 Block size
+128............	 128
+192............	 64
+224............	 32
+240............	 16
+248............	 8
+252............	 4
+254............	 2
+255............	 1
+
+							
+Vekefni 4
+172.16.16.0/22
+https://www.youtube.com/watch?v=gjecDVdeBCE
+
+2^N should not be less than 2 but
+should be equal to 2 or more than 2 when necessary
+2^N=2
+N is=1 borrowed bit
+			128  +	64   +	32   +	16  +	8   +	4   +	2   +   1
+11111111.11111111.	1	 1	1	1	1	1	0	0.	 0          0       0       0       0      0      0      0 and next, now lets covert this binary to decimal
+the magic number is 4 i.e add all the numbers from 128 to 4 is=252
+255.	 255.	  252.	  0						        	2^7=128    2^6=64  2^5=32  2^4=16  2^3=8  2^2=4  2^1=2  2^0=1
+
+
+1st subnet(in this case we only need one subnet)
+
+subnet mask=255.255.252.0
+
+Network =172.16.0.0 - 172.16.3.255
+
+Network ID=172.16.0.0
+
+Range of valid host=172.16.0.1 - 172.16.3.254
+
+Broadcast ID=172.16.3.255
+
+
+2nd subnet
+
+subnet mask=255.255.252.0
+
+Network ID=172.16.4.0
+
+Range of valid host=172.16.4.1 - 172.16.7.254
+
+Broadcast ID=172.16.7.255
+
+
+3rd subnet
+
+subnet mask=255.255.252.0
+
+Network ID=172.16.8.0
+
+Range of valid host=172.16.11.1 - 172.16.11.254
+
+Broadcast ID=172.16.11.255
+
+
+
+
+
+						        
+172.16.16.0/24
+
+N=number of subnets=4
+i.e Tölvudeild,Fjámaladeild,Framleidsludeild og Yfirsjórn
+
+N is=2
+
+2^N should not be less than 2 but
+should be equal to 2 or more than 2 when necessary
+2^N=4
+N is=1 borrowed bit
+11111111.11111111.11111111.0	    0	    0	    0	    0	   0	  0	 0 and next, now lets covert this binary to decimal
+255.	 255.	  255.	  2^7=128  2^6=64  2^5=32  2^4=16  2^3=8  2^2=4  2^1=2  2^0=1
+
+255.	 255.	  255.	  0
+
+
+0ne subnet
+
+subnet mask=255.255.255.0
+
+Network ID=172.16.16.0
+
+Range of valid host=172.16.16.1 - 172.16.16.254
+
+Broadcast ID=172.16.16.255
+
+
+
+
+
+
+
+

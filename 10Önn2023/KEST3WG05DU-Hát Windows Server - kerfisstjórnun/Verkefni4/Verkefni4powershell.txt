@@ -1,0 +1,155 @@
+
+#VERKEFNI 4
+
+
+#(1.)Rename the server to dc1 and windows 10 client to client1
+
+#renaming the server
+PS C:\Users\Administrator.DC1> Rename-Computer -NewName dc1 -restart
+#renaming the windows 10
+PS C:\Users\Administrator.DC1> Rename-Computer client1 restart-computer
+
+
+
+
+#(2.)Rename the network adapters on the server,the adapter configured
+#with the 10.x.x.x should have name "Public" 
+#and the other should be have the name "Private".
+
+PS C:\Users\Administrator.DC1> Get-NetAdapter
+
+Name                      InterfaceDescription                    ifIndex Status       MacAddre
+                                                                                       ss
+----                      --------------------                    ------- ------       --------
+PRIVATE                   Intel(R) 82574L Gigabit Network Conn...      10 Up           00-0C...
+Ethernet0                 Intel(R) 82574L Gigabit Network Co...#2       5 Up           00-0C...
+
+#renaming adapter with 10.x.x.x "Public"
+PS C:\Users\Administrator.DC1>Rename-NetAdapter -Name Ethernet0 -NewName public
+
+#renaming other adapter "Private"
+PS C:\Users\Administrator.DC1>Rename-NetAdapter -Name PRIVATE -NewName Private
+
+
+
+
+#(3.)Configure the private adapter with a static ipv4 addresses,
+#and DNS address, the server should get the last usable IP Address
+#from 172.16.16.0/22. 
+
+#Configuring private adapter 
+PS C:\Users\Administrator.DC1> New-NetIPAddress -InterfaceAliase private -IPAddress 172.16.16.0 -DefaultGateway 172.16.3.254 -AddressFamily IPv4 -PrefixLength 22
+#DNS
+PS C:\Users\Administrator.DC1> Set-DnsClientServerAddress -ServerAddress 172.16.3.254
+
+
+
+
+#(4.)Install AD DS roles and promote the server to a domain
+#controller, use “ddp-yourName.local” for doamin name.
+
+#Installing ADDS roles
+PS C:\Users\Administrator.DC1> Install-WindowsFeature -name AD-Domain-Services -IncludeManagementTools
+
+#promoting server to domain
+PS C:\Users\Administrator.DC1> install-addsforest -domainname ddp-livinus.local
+
+
+
+
+
+#(5.)Install and configure DHCP, for DHCP use the 
+#entire /24 range then exclude the last 10 ip address.
+
+PS C:\Users\Administrator.DC1> Install-WindowsFeature -Name dhcp -IncludeManagementTools
+
+#creating the security groups: 
+PS> Add-DhcpServerSecurityGroup
+
+#Restart the service.
+PS> Restart-Service DHCPServer
+
+#Authorize the DHCP server in ADDS:
+PS> Add-DHCPServerinDC 172.16.16.0
+
+#Add DHCP Scope
+PS> Add-DhcpServerV4Scope -Name "scope 1" -StartRange 172.16.16.244 -EndRange 172.16.16.254 -SubnetMask 255.255.255.0  
+
+PS> Set-DhcpServerV4OptionValue -DnsServer 172.16.16.0 -Router 172.16.16.1
+PS> Set-DhcpServerv4Scope -ScopeId 172.16.16.0 -LeaseDuration 1.00:00:00
+
+
+
+
+
+#(6.)Join the client computer to a domain.
+PS C:\Users\Administrator.DC1>Add-Computer -DomainName livinus.local -Credential livinus\Administrator -Restart -Force
+
+
+
+
+
+#(7)Create PowerShell script that will automate the creation of the OUs,
+#Groups and Users, add the users to their appropriate Groups. 
+
+
+#Import required modules
+Import-Module ActiveDirectory
+
+#create a new password
+$securePassword = ConvertTo-SecureString "2015P@ssword" -AsPlainText -Force
+
+#Prompt user for CSV file path
+$filepath = Read-Host -Prompt "Please enter the path to your CSV file"
+
+#Import the file into a variable - i use this path C:\usersV2.csv since i put it in the C:\ drive and change the variable to $users not $Users or vise versa first letter of the csv file name  
+$users = Import-Csv $filepath
+
+
+#Loop through each row and gather information
+
+ForEach ($user in $users){
+ #gather the users info
+ $fname = $user.Nafn
+ $mname  = $user.Fornafn  
+ $lname  = $user.Eftirnafn
+ $uname = $user.Notendanafn
+ $department = $user.Deild
+ $jTitle = $user.Stada
+
+ $ou = $("ou=" + $department + ",dc=livinus,dc=local")
+ 
+ $dnsroot = '@'+(Get-ADDomain).dnsroot
+ $upn = $fname.substring(0,2) + $lname.substring(0,1) + $dnsroot
+
+ if(-not(Get-ADOrganizationalUnit -Filter {name -like $department})){
+ New-ADOrganizationalUnit -name $department -Path "dc=livinus,dc=local"
+ New-adgroup -name $department -path $("ou=" + $department + " ,dc=livinus,dc=local") -GroupScope Global
+
+ }
+
+ #Create new AD user for each user in CSV file
+ New-ADUser -Name "$fname" -GivenName $mname -Surname $lname -UserPrincipalName $upn -Path $ou -SamAccountName $uname -AccountPassword $securePassword -ChangePasswordAtLogon $true -OfficePhone $ophone -Description $desc -Enabled $true
+ echo "Account Created for" $fname $lname in $ou
+ Add-ADGroupMember -Identity $department -Members $user.Notendanafn
+ }
+
+
+
+
+
+
+
+#(8)Use the script in question 7 to create a 
+#home directory for each user under ' “ “C:\ddp_Users”. 
+
+
+$HomeDrive = 'H:' 
+$UserRoot = '\\dc1\ddp_users' 
+$FolderRoot = 'C:\ddp_users'
+ 
+#to create the home directory, use the cmdlets 
+" New-Item -Path $HomeDirectory -Type directory -force; "
+ 
+#New-ADuser parameters: -HomeDrive   
+                        -HomeDirector

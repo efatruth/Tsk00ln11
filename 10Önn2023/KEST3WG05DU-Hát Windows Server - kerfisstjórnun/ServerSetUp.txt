@@ -1,0 +1,126 @@
+
+
+To set up the Server manager when you want to start setting up the Server 
+or after doing reverting with the snapchat(Please always remeber to snapchat when you want to prepare the Server)
+
+Set up the two Adapters(one is for NAT,External network(ISP cloud)
+the internet outside(we put the correct Public Ip-address and i.e carefully not mess with it)
+while the other Adapter(where we put the correct Internal network private Ip-address 
+and from it calculate the correct Subnet-mask to use or put)is for the internal network of the Organisation
+and that´s where we do the following configurations:   
+
+1. Configure the Static Ipv4 Address (Host IP Address) on the private interface(for example it can also be 
+configured with last usable Ipv4 address in the network, if asked to)
+
+2. Rename the Server (any name e.g "dc1" for the server computer and e.g "client1" for the window 10 computer)
+
+3. Install ADDS(Active Directory Domain Services) Role
+
+4. Promote the Server to a domain
+
+5. Install and configure DHCP(Also configure Dhcp scope for it 
+(the Default gateway ip-address and the DNS ip-address is the same as the server Ip-address, 
+i used it for the requirement of this assignment))
+
+6. Join client to the domain
+
+7. Remote desktop
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Subnet fyrir EEP ehf
+
+
+172.30.100.0/26
+
+No. of subnets=4
+
+2^n=4
+					  128 64  32   16    8   4   2   1
+									
+					  128 64   0	0    0   0   0   0
+255.255.255.0 = 11111111.11111111.11111111.1   1   0    0    0   0   0   0
+			8      +8	+8	   			 +8
+				       =24+2=/26
+					 2^7  2^6  2^5 2^4  2^3 2^2 2^1 2^0
+
+		   128+64=192
+New sm:255.255.255.192
+
+172.30.100.52 - 172.30.100.62
+
+
+					  128 64   32    16   8   4   2   1
+									
+					  128 64    0	 0    0   0   0   0 network
+
+					   0   0    1	 1    1   1   1   1 host
+for the network 
+255.255.255.0 = 11111111.11111111.11111111.1   1    0    0    0   0   0   0 network to calculate subnetmask
+for the host 
+255.255.255.0 = 00000000.00000000.00000000.0   0    1    1    1   1   1   0 host to calculate the host ranges
+					  2^7  2^6  2^5 2^4  2^3 2^2 2^1 2^0
+					   0   0   32 + 18 +  8 + 4 + 2 + 0 =62 as last usable ip-addr. before the broadcast ip-addr.
+
+Block size =64
+
+
+1st Subnet:
+
+Network ID:172.30.100.0
+
+Brocast ID:172.30.100.63
+
+Host range:172.30.100.1 - 172.30.100.62
+
+
+2nd Subnet:
+
+Network ID:172.30.100.64	0+64=64
+
+Brocast ID:172.30.100.127	64+64=128-1=127
+
+Host range:172.30.100.65 - 172.30.100.126
+
+
+3rd Subnet:
+
+Network ID:172.30.100.128	64+64=128
+
+Brocast ID:172.30.100.191     128+64=192-1=191
+
+Host range:172.30.100.129 - 172.30.100.190
+
+
+Information to note : /26 covers from 1st subnet to 3rd subnet or
+perhaps to say /26 starts from the 1st subnets and end at the 3rd subnet 
+
+4th Subnet:
+
+Network ID:172.30.100.192
+
+
+

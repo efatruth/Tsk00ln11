@@ -1,0 +1,94 @@
+
+
+Subnet fyrir EEP ehf
+
+
+172.30.100.0/26
+
+No. of subnets=4
+
+2^n=4
+					  128 64  32   16    8   4   2   1
+									
+					  128 64   0	0    0   0   0   0
+255.255.255.0 = 11111111.11111111.11111111.1   1   0    0    0   0   0   0
+			8      +8	+8	   			 +8
+				       =24+2=/26
+					 2^7  2^6  2^5 2^4  2^3 2^2 2^1 2^0
+
+		   128+64=192
+New sm:255.255.255.192
+
+172.30.100.52 - 172.30.100.62
+
+
+					  128 64   32    16   8   4   2   1
+									
+					  128 64    0	 0    0   0   0   0 network
+		
+Subnet mask	 Block size
+128............	 128
+192............	 64
+224............	 32
+240............	 16
+248............	 8
+252............	 4
+254............	 2
+255............	 1
+
+
+					   0   0    1	 1    1   1   1   1 host
+for the network 
+255.255.255.0 = 11111111.11111111.11111111.1   1    0    0    0   0   0   0 network to calculate subnetmask
+for the host 
+255.255.255.0 = 00000000.00000000.00000000.0   0    1    1    1   1   1   0 host to calculate the host ranges
+					  2^7  2^6  2^5 2^4  2^3 2^2 2^1 2^0
+					   0   0   32 + 18 +  8 + 4 + 2 + 0 =62 as last usable ip-addr. before the broadcast ip-addr.
+
+Block size =64
+
+
+1st Subnet:
+
+Network ID:172.30.100.0
+
+Broadcast ID:172.30.100.63
+
+Host range:172.30.100.1 - 172.30.100.62
+
+
+2nd Subnet:
+
+Network ID:172.30.100.64	0+64=64
+
+Broadcast ID:172.30.100.127	64+64=128-1=127
+
+Host range:172.30.100.65 - 172.30.100.126
+
+
+3rd Subnet:
+
+Network ID:172.30.100.128	64+64=128
+
+Broadcast ID:172.30.100.191     128+64=192-1=191
+
+Host range:172.30.100.129 - 172.30.100.190
+
+
+Information to note : /26 covers from 1st subnet to 3rd subnet or
+perhaps to say /26 starts from the 1st subnets and end at the 3rd subnet 
+
+
+
+you can use ipconfig, ipconfig /all, ipconfig renew, ipconfig release, and also ping the server ip addr.
+from the client to see if dhcp and scope have been distributed but 
+take note that If the ip adress of the dns, default gateway are incorrect the client will not 
+be able to connect to the domain
+
+
+4th Subnet:
+
+Network ID:172.30.100.192
+
+
+

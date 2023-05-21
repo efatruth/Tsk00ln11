@@ -1,0 +1,275 @@
+#Learning powershell form beginnig
+https://www.youtube.com/watch?v=IHrGresKu2w&list=PLCGGtLsUjhm2k22nFHHdupAK0hSNZVfXi
+
+Windows PowerShell
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+#(1)Rename the server to dc1 and windows 10 client to client1. (5%)
+PS C:\Users\Administrator.DC1> $env:Computername
+DC1
+#for the server
+PS C:\Users\Administrator.DC1> Rename-Computer dc1 -restart
+#OR
+PS C:\Users\Administrator.DC1> Rename-Computer -NewName dc01
+#or# -newname dc1
+
+#for the host client1
+PS C:\Users\Administrator.DC1> Rename-Computer client1 restart-computer
+
+
+#(2)Rename the network adapters on the server,the adapter configured
+#with the 10.x.x.x should have name "Public" 
+#and the other should be have the name "Private". (5%)
+
+PS C:\Users\Administrator.DC1> Get-NetAdapter
+
+Name                      InterfaceDescription                    ifIndex Status       MacAddre
+                                                                                       ss
+----                      --------------------                    ------- ------       --------
+PRIVATE                   Intel(R) 82574L Gigabit Network Conn...      10 Up           00-0C...
+Ethernet0                 Intel(R) 82574L Gigabit Network Co...#2       5 Up           00-0C...
+
+#adapter with the 10.x.x.x to be rename "Public"
+PS C:\Users\Administrator.DC1>Rename-NetAdapter -Name Ethernet0 -NewName public
+#and the other adapter to be rename "Private"
+PS C:\Users\Administrator.DC1>Rename-NetAdapter -Name PRIVATE -NewName Private
+
+
+ 
+#(3)Configure the private adapter with a static ipv4 addresses,
+#and DNS address, the server should get the last usable IP Address
+#from 172.16.16.0/22. (10%) 
+
+PS C:\Users\Administrator.DC1>get-netadapter
+PS C:\Users\Administrator.DC1> ipconfig /all
+PS C:\Users\Administrator.DC1> netsh interface ip show config
+
+#private adapter with a static ipv4 addresses, subnetmask and default gateway 
+PS C:\Users\Administrator.DC1> netsh interface ipv4 set address private static 172.16.3.254 
+PS C:\Users\Administrator.DC1> New-NetIPAddress -InterfaceAliase private -IPAddress 172.16.16.0 -DefaultGateway 172.16.3.254 -AddressFamily IPv4 -PrefixLength 22
+
+#and DNS address
+PS C:\Users\Administrator.DC1> netsh interface ipv4 add dns private 172.16.3.254 
+PS C:\Users\Administrator.DC1> Set-DnsClientServerAddress -ServerAddress 172.16.3.254
+
+OR
+
+PS C:\Users\Administrator.DC1> Get-NetIPConfiguration
+
+
+InterfaceAlias       : PRIVATE
+InterfaceIndex       : 10
+InterfaceDescription : Intel(R) 82574L Gigabit Network Connection
+NetProfile.Name      : livinus.local 2
+IPv4Address          : 169.254.86.63
+IPv6DefaultGateway   :
+IPv4DefaultGateway   :
+DNSServer            : ::1
+
+InterfaceAlias       : Ethernet0
+InterfaceIndex       : 5
+InterfaceDescription : Intel(R) 82574L Gigabit Network Connection #2
+NetProfile.Name      : livinus.local 2
+IPv4Address          : 169.254.103.224
+IPv6DefaultGateway   :
+IPv4DefaultGateway   :
+DNSServer            : ::1
+
+
+PS C:\Users\Administrator.DC1> New-NetIPAddress -InterfaceAliase PRIVATE -IPAddress 172.16.16.0 -DefaultGateway 172.16.16.0 -AddressFamily IPv4 -PrefixLength 22
+
+
+Subnet mask	 Block size
+128............	 128
+192............	 64
+224............	 32
+240............	 16
+248............	 8
+252............	 4
+254............	 2
+255............	 1
+
+							
+Vekefni 4
+172.16.16.0/22
+https://rst.im/ip/172.16.16.0/22
+https://www.youtube.com/watch?v=gjecDVdeBCE
+
+2^N should not be less than 2 but
+should be equal to 2 or more than 2 when necessary
+2^N=2
+N is=1 borrowed bit
+			128  +	64   +	32   +	16  +	8   +	4   +	2   +   1
+11111111.11111111.	1	 1	1	1	1	1	0	0.	 0          0       0       0       0      0      0      0 and next, now lets covert this binary to decimal
+the magic number is 4 i.e add all the numbers from 128 to 4 is=252
+255.	 255.	  252.	  0						        	2^7=128    2^6=64  2^5=32  2^4=16  2^3=8  2^2=4  2^1=2  2^0=1
+
+
+1st subnet(in this case we only need one subnet)
+
+subnet mask=255.255.252.0
+
+Network =172.16.16.0 - 172.16.19.255
+
+Network ID=172.16.16.0
+
+Range of valid host=172.16.16.1 - 172.16.19.254
+
+Broadcast ID=172.16.19.255
+
+
+
+###??
+
+2nd subnet
+
+subnet mask=255.255.252.0
+
+Network ID=172.16.4.0
+
+Range of valid host=172.16.4.1 - 172.16.7.254
+
+Broadcast ID=172.16.7.255
+
+
+3rd subnet
+
+subnet mask=255.255.252.0
+
+Network ID=172.16.8.0
+
+Range of valid host=172.16.11.1 - 172.16.11.254
+
+Broadcast ID=172.16.11.255
+
+###??
+
+
+
+
+						        
+172.16.16.0/24
+
+N=number of subnets=4
+i.e Tölvudeild,Fjámaladeild,Framleidsludeild og Yfirsjórn
+
+N is=2
+
+2^N should not be less than 2 but
+should be equal to 2 or more than 2 when necessary
+2^N=4
+N is=1 borrowed bit
+11111111.11111111.11111111.0	    0	    0	    0	    0	   0	  0	 0 and next, now lets covert this binary to decimal
+255.	 255.	  255.	  2^7=128  2^6=64  2^5=32  2^4=16  2^3=8  2^2=4  2^1=2  2^0=1
+
+255.	 255.	  255.	  0
+
+
+0ne subnet
+
+subnet mask=255.255.255.0
+
+Network ID=172.16.16.0
+
+Range of valid host=172.16.16.1 - 172.16.16.254
+
+Broadcast ID=172.16.16.255
+
+#excluded last 10 ip address for DHCP range scope =172.16.16.244 - 172.16.16.254
+
+
+
+
+#(4)Install AD DS roles and promote the server to a domain
+#controller, use “ddp-yourName.local” for doamin name. (10%)
+
+#Installing AD DS roles
+PS C:\Users\Administrator.DC1> Install-WindowsFeature -name AD-Domain-Services -IncludeManagementTools
+#OR
+PS> Install-windowsfeature AD-domain-services -IncludeAllSubFeature -IncludeManagementTools
+PS> Import-Module ADDSDeployment
+
+#OR
+PS C:\Users\Administrator.DC1> add-windowsfeature ad-domain-services
+#to check
+PS C:\Users\Administrator.DC1> get-windowsfeature ! more
+
+
+#promoting server to a domain
+PS C:\Users\Administrator.DC1> install-addsforest -domainname ddp-livinus.local
+OR
+PS C:\Users\Administrator.DC1> install-addsforest -domainname livinus.local
+OR
+PS C:\Users\Administrator.DC1> Install-AddsDomainController
+
+
+#and must provide domain name and password on the process
+
+
+#(5)Install and configure DHCP, for DHCP use the 
+#entire /24 range then exclude the last 10 ip address. (10%)
+
+#The last 10 ip address=172.16.16.244 - 172.16.16.254
+
+#verification command to check status
+PS C:\Users\Administrator.DC1>Get-NetIPConfiguration
+PS C:\Users\Administrator.DC1>Get-WindowsFeature -Name *dhcp*
+
+
+PS C:\Users\Administrator.DC1> Install-WindowsFeature -Name 'DHCP' -IncludeManagementTools
+PS C:\Users\Administrator.DC1> Install-WindowsFeature -Name dhcp -IncludeManagementTools
+PS C:\Users\Administrator.DC1>restart-computer
+#OR
+#DHCP/role installation
+PS> Add-WindowsFeature -IncludeManagementTools DHCP
+PS> Get-Command -Module DHCPServer
+
+#create the security groups: 
+PS> Netsh DHCP Add SecurityGroups
+
+PS> Add-DhcpServerSecurityGroup
+
+#Restart the service.
+PS> Restart-Service DHCPServer
+
+#Authorize the DHCP server in AD DS:
+PS> Add-DHCPServerinDC 172.16.16.0
+
+#Add DHCP Scope
+PS> Add-DhcpServerV4Scope -Name "scope 1" -StartRange 172.16.16.244 -EndRange 172.16.16.254 -SubnetMask 255.255.255.0  
+
+PS> Set-DhcpServerV4OptionValue -DnsServer 172.16.16.0 -Router 172.16.16.1
+PS> Set-DhcpServerv4Scope -ScopeId 172.16.16.0 -LeaseDuration 1.00:00:00
+
+#Verification with client PC:
+PS C:\Users\user1>ipconfig /renew
+PS C:\Users\user1>ipconfig /all
+PS C:\Users\user1>ping 172.16.16.0
+
+
+
+
+#(6)Join the client computer to a domain. (10%)
+PS C:\Users\Administrator.DC1>add-computer -domainname livinus.local
+PS C:\Users\Administrator.DC1>Add-Computer -DomainName livinus.local -Credential livinus\Administrator -Restart -Force
+PS C:\Users\Administrator.DC1>Add-Computer -DomainName livinus.local -Credential livinus\Administrator
+PS C:\Users\Administrator.DC1>Restart-Computer
+
+
+#(7)Create PowerShell script that will automate the creation of the OUs, Groups and Users, add the users to their appropriate Groups. (30%) 
+
+
+
+
+#(8)Use the script in question 7 to create a home directory for each user under ' “ “C:\ddp_Users”. (20%) 
+
+$HomeDrive = 'H:' 
+$UserRoot = '\\dc1\ddp_users' 
+$FolderRoot = 'C:\ddp_users'
+ 
+#to create the home directory, use the cmdlets 
+" New-Item -Path $HomeDirectory -Type directory -force; "
+ 
+#New-ADuser parameters: -HomeDrive   
+                        -HomeDirectory 
+
